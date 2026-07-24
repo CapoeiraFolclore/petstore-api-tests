@@ -101,11 +101,17 @@ Configuration files live in `config/<env>.yaml` and support:
 
 ## Security scan (default)
 
-Run the built-in **"Scan this project for security concerns"** check:
+Run the built-in **"Scan this project for security concerns"** check. The scanner maps findings to **OWASP Top 10**, **ISO/IEC 27001 Annex A**, and **NIST CSF**, and reports each test with remediation guidance.
 
 ```bash
 chmod +x run_security_scan.sh
 ./run_security_scan.sh
+```
+
+JSON output for CI:
+
+```bash
+./run_security_scan.sh --format json
 ```
 
 Or with Make:
