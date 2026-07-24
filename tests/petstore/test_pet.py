@@ -17,7 +17,14 @@ from api_tests.validators import (
 @pytest.mark.pet
 def test_get_pet_by_id_returns_valid_pet(api_client: ApiClient, swagger_spec: dict) -> None:
     """GET /pet/{petId} should return a Pet matching the swagger schema."""
-    pet_id = 1
+    available_response = api_client.get("/pet/findByStatus", params={"status": "available"})
+    validate_status_code(available_response, 200)
+
+    pets = available_response.json()
+    if not pets:
+        pytest.skip("No available pets returned from PetStore API")
+
+    pet_id = pets[0]["id"]
     response = api_client.get(f"/pet/{pet_id}")
 
     validate_status_code(response, 200)
