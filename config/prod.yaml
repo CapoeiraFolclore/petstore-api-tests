@@ -1,0 +1,6 @@
+base_url: https://petstore.swagger.io/v2
+timeout: 30
+verify_ssl: true
+default_headers:
+  Accept: application/json
+  Content-Type: application/json
