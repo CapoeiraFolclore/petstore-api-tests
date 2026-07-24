@@ -6,16 +6,14 @@ cd "$ROOT_DIR"
 
 if ! command -v python3 >/dev/null 2>&1; then
   echo "Python 3 is required but was not found on PATH."
-  echo "Install Python 3.10+ from https://www.python.org/downloads/"
   exit 1
 fi
 
 PYTHON_VERSION="$(python3 -c 'import sys; print(".".join(map(str, sys.version_info[:2])))')"
 PYTHON_MINOR="$(python3 -c 'import sys; print(sys.version_info.minor)')"
 if [[ "${PYTHON_MINOR}" -lt 10 ]]; then
-  echo "Python 3.10+ is required (current: ${PYTHON_VERSION})."
-  echo "Patched dependency versions are not available on Python 3.9."
-  echo "Install Python 3.10+ and recreate the virtual environment:"
+  echo "Python 3.10+ is required for patched dependencies (current: ${PYTHON_VERSION})."
+  echo "Install from https://www.python.org/downloads/ or use pyenv/brew, then recreate .venv:"
   echo "  rm -rf .venv && python3.10 -m venv .venv"
   exit 1
 fi
@@ -30,14 +28,14 @@ source ".venv/bin/activate"
 python -m pip install --upgrade pip
 python -m pip install -r requirements.txt
 
-SWAGGER_FILE="${ROOT_DIR}/specs/petstore.swagger.json"
-if [[ ! -f "${SWAGGER_FILE}" ]]; then
-  echo "Downloading PetStore swagger spec..."
-  curl -sL "https://petstore.swagger.io/v2/swagger.json" -o "${SWAGGER_FILE}"
+if [[ -f requirements-dev.txt ]]; then
+  python -m pip install -r requirements-dev.txt
 fi
 
-export API_ENV="${API_ENV:-dev}"
-export PYTHONPATH="${ROOT_DIR}${PYTHONPATH:+:${PYTHONPATH}}"
+echo "Running pip-audit against requirements.txt..."
+if ! pip-audit -r requirements.txt; then
+  echo "pip-audit reported vulnerabilities. Review output above."
+  exit 1
+fi
 
-echo "Running PetStore API tests against environment: ${API_ENV}"
-python -m pytest "$@"
+echo "Dependency audit passed."

@@ -4,17 +4,19 @@ Python/pytest API test suite for the [Swagger Petstore](https://petstore.swagger
 
 ## Requirements
 
-- Python 3.9+ (Python 3.10+ recommended)
+- **Python 3.10+** (required for patched dependency versions)
 - Network access to `https://petstore.swagger.io`
 
-If Python is missing:
+If Python is missing or outdated:
 
 ```bash
-# macOS (Homebrew)
-brew install python
-
-# Verify
+# Verify version (must be 3.10+)
 python3 --version
+
+# Install from https://www.python.org/downloads/
+# Then recreate the virtual environment:
+rm -rf .venv
+python3 -m venv .venv
 ```
 
 ## Quick start
@@ -132,6 +134,24 @@ print_security_scan_report(report)
 ```
 
 The scanner checks for hardcoded secrets, dangerous code patterns, sensitive logging, TLS settings, and other common project security issues. It prints a pass/fail report with severity, location, and finding details.
+
+## Dependency audit (pip-audit)
+
+Scan third-party packages for known CVEs:
+
+```bash
+chmod +x run_pip_audit.sh
+./run_pip_audit.sh
+```
+
+Or manually:
+
+```bash
+pip install pip-audit
+pip-audit -r requirements.txt
+```
+
+Recent advisories required bumping minimum versions in `requirements.txt` (pytest, requests, python-dotenv, urllib3). Those patched releases require **Python 3.10+**.
 
 ## Validation features
 
