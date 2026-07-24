@@ -18,3 +18,9 @@ When the user asks to **"Scan this project for security concerns"** (or similar 
 4. Do not modify code unless the user explicitly asks to fix findings.
 
 The default entry point is `scan_project_for_security_concerns()` in `api_tests/security_scan.py`.
+
+For code generation and review standards, also read:
+
+- `docs/SECURITY_GUIDELINES.md`
+- `docs/SECURITY_REVIEW_PROMPT.md`
+- `.cursor/skills/secure-code-generation/SKILL.md`
