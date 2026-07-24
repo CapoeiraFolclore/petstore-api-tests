@@ -49,6 +49,7 @@ petstore-api-tests/
 │   ├── conftest.py         # Pytest fixtures
 │   └── petstore/           # Example API tests
 ├── run_tests.sh            # One-command test runner
+├── run_security_scan.sh    # Default security scan command
 ├── pytest.ini
 └── requirements.txt
 ```
@@ -97,6 +98,32 @@ Configuration files live in `config/<env>.yaml` and support:
 # Increase HTTP logging detail
 ./run_tests.sh --api-log-level DEBUG
 ```
+
+## Security scan (default)
+
+Run the built-in **"Scan this project for security concerns"** check:
+
+```bash
+chmod +x run_security_scan.sh
+./run_security_scan.sh
+```
+
+Or with Make:
+
+```bash
+make security-scan
+```
+
+Programmatic usage:
+
+```python
+from api_tests.security_scan import scan_project_for_security_concerns, print_security_scan_report
+
+report = scan_project_for_security_concerns()
+print_security_scan_report(report)
+```
+
+The scanner checks for hardcoded secrets, dangerous code patterns, sensitive logging, TLS settings, and other common project security issues. It prints a pass/fail report with severity, location, and finding details.
 
 ## Validation features
 

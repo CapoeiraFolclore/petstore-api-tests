@@ -1,4 +1,4 @@
-.PHONY: install test test-dev test-staging test-prod clean
+.PHONY: install test test-dev test-staging test-prod security-scan clean
 
 install:
 	python3 -m venv .venv
@@ -16,6 +16,9 @@ test-staging:
 
 test-prod:
 	API_ENV=prod PYTHONPATH=. .venv/bin/pytest
+
+security-scan:
+	./run_security_scan.sh
 
 clean:
 	rm -rf .venv .pytest_cache htmlcov .coverage
