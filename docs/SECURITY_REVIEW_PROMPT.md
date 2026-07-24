@@ -85,4 +85,4 @@ In Cursor, reference the project skill:
 Use the secure-code-generation skill to implement [task].
 ```
 
-Skill path: `.cursor/skills/secure-code-generation/SKILL.md`
+Skill path: `.cursor/skills/secure-code-generation/Security_SKILL.md`

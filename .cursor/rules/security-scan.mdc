@@ -23,4 +23,4 @@ For code generation and review standards, also read:
 
 - `docs/SECURITY_GUIDELINES.md`
 - `docs/SECURITY_REVIEW_PROMPT.md`
-- `.cursor/skills/secure-code-generation/SKILL.md`
+- `.cursor/skills/secure-code-generation/Security_SKILL.md`

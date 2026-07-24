@@ -9,7 +9,7 @@ This document defines the security baseline for the **petstore-api-tests** proje
 Use together with:
 
 - `./run_security_scan.sh` — automated static scan
-- `.cursor/skills/secure-code-generation/SKILL.md` — agent skill
+- `.cursor/skills/secure-code-generation/Security_SKILL.md` — agent skill
 - `docs/SECURITY_REVIEW_PROMPT.md` — reusable prompts
 
 ---

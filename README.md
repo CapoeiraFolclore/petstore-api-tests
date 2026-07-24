@@ -168,4 +168,4 @@ Target host: `petstore.swagger.io` · base path: `/v2` · no authentication requ
 - `PetStore.md` — original project prompt and agent conversation transcript
 - `docs/SECURITY_GUIDELINES.md` — OWASP / ISO 27001 / NIST secure coding baseline
 - `docs/SECURITY_REVIEW_PROMPT.md` — copy/paste prompts for scans and reviews
-- `.cursor/skills/secure-code-generation/SKILL.md` — agent skill for secure code generation
+- `.cursor/skills/secure-code-generation/Security_SKILL.md` — agent skill for secure code generation

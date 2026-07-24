@@ -9,7 +9,7 @@ alwaysApply: false
 When **writing or modifying** code in this repository:
 
 1. Follow `docs/SECURITY_GUIDELINES.md`.
-2. Use the **secure-code-generation** skill (`.cursor/skills/secure-code-generation/SKILL.md`).
+2. Use the **secure-code-generation** skill (`.cursor/skills/secure-code-generation/Security_SKILL.md`).
 3. Never hardcode secrets; use environment variables or secret stores.
 4. Redact sensitive fields in logs (`Authorization`, `password`, `token`, `api_key`).
 5. Validate external input; allowlist environment names and outbound hosts.
