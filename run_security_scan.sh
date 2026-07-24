@@ -22,4 +22,4 @@ python -m pip install -r requirements.txt >/dev/null
 export PYTHONPATH="${ROOT_DIR}${PYTHONPATH:+:${PYTHONPATH}}"
 
 echo "Running default security scan: Scan this project for security concerns"
-python -m api_tests.security_scan --project-root "$ROOT_DIR" "$@"
+python -m api_tests.security_scan --project-root "$ROOT_DIR" --write-preview "$@"

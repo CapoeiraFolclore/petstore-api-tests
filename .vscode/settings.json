@@ -1,0 +1,7 @@
+{
+  "explorer.fileNesting.enabled": true,
+  "explorer.fileNesting.patterns": {
+    "security_scan.py": "security_scan.preview.md, security_scan.report.md, security_scan.report.html"
+  },
+  "markdown.preview.breaks": true
+}

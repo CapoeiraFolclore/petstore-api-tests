@@ -10,14 +10,22 @@ Scan a software project for common security weaknesses using checks mapped to:
   - ISO/IEC 27001:2022 Annex A control themes (information security controls)
   - NIST Cybersecurity Framework (CSF) 2.0 functions
 
-This is a *static*, local scanner. It does not replace penetration testing,
-dependency CVE databases (e.g. OSV/Snyk), or formal ISO 27001 certification.
+Preview in Cursor
+-----------------
+Python files do not get a native Preview tab. Use the companion Markdown files:
+
+  - ``security_scan.preview.md``  — static docs (open and click **Preview** in the tab bar)
+  - ``security_scan.report.md``   — latest scan results (regenerate with ``--write-preview``)
+
+Both files are nested under ``security_scan.py`` in the Explorer when using ``.vscode/settings.json``.
 
 Usage
 -----
     python security_scan.py
     python security_scan.py --project-root /path/to/project
     python security_scan.py --format json
+    python security_scan.py --write-preview
+    python security_scan.py --format html --output reports/security_scan.html
 
 Default prompt: "Scan this project for security concerns"
 """
@@ -41,6 +49,9 @@ from typing import Callable, Dict, Iterable, List, Optional, Sequence, Tuple
 
 DEFAULT_PROMPT = "Scan this project for security concerns"
 DEFAULT_PROJECT_ROOT = Path.cwd()
+MODULE_DIR = Path(__file__).resolve().parent
+PREVIEW_DOC_PATH = MODULE_DIR / "security_scan.preview.md"
+PREVIEW_REPORT_PATH = MODULE_DIR / "security_scan.report.md"
 
 SCAN_EXTENSIONS = {
     ".py", ".yaml", ".yml", ".json", ".sh", ".bash", ".env", ".example",
@@ -884,6 +895,154 @@ def report_to_json(report: SecurityScanReport) -> str:
     return json.dumps(payload, indent=2, default=lambda obj: obj.value if isinstance(obj, Enum) else str(obj))
 
 
+def _overall_result_label(report: SecurityScanReport) -> str:
+    if not report.findings and report.failed_checks == 0:
+        return "PASS"
+    if report.failed_checks == 0:
+        return "PASS WITH WARNINGS"
+    return "FAIL"
+
+
+def report_to_markdown(report: SecurityScanReport) -> str:
+    """Render the scan report as Markdown for Cursor's Preview tab."""
+    lines = [
+        "# Security Scan Report",
+        "",
+        f"**Prompt:** {report.prompt}  ",
+        f"**Project:** `{report.project_root}`  ",
+        f"**Overall result:** {_overall_result_label(report)}  ",
+        f"**Standards:** OWASP Top 10 | ISO/IEC 27001 Annex A | NIST CSF",
+        "",
+        "## Summary",
+        "",
+        "| Metric | Count |",
+        "|--------|------:|",
+        f"| Checks executed | {len(report.check_results)} |",
+        f"| Passed | {sum(1 for item in report.check_results if item.status == CheckStatus.PASS)} |",
+        f"| Failed | {report.failed_checks} |",
+        f"| Warnings | {report.warning_checks} |",
+        f"| Skipped | {sum(1 for item in report.check_results if item.status == CheckStatus.SKIP)} |",
+        f"| Total findings | {len(report.findings)} |",
+        "",
+        "## Checks Run",
+        "",
+    ]
+
+    for result in report.check_results:
+        check = result.check
+        lines.extend(
+            [
+                f"### {check.check_id} {check.name} — **{result.status.value}**",
+                "",
+                check.description,
+                "",
+                f"- **OWASP:** {check.owasp}",
+                f"- **ISO 27001:** {check.iso27001}",
+                f"- **NIST CSF:** {check.nist}",
+                f"- **Default remediation:** {check.remediation}",
+                "",
+            ]
+        )
+        if result.notes:
+            lines.extend([f"*Notes:* {result.notes}", ""])
+        if result.findings:
+            lines.extend(
+                [
+                    "| Severity | Location | Finding | Remediation |",
+                    "|----------|----------|---------|-------------|",
+                ]
+            )
+            for finding in result.findings:
+                finding_text = finding.finding.replace("|", "/")
+                remediation = finding.remediation.replace("|", "/")
+                lines.append(
+                    f"| {finding.severity.value} | `{finding.location}` | {finding_text} | {remediation} |"
+                )
+            lines.append("")
+        else:
+            lines.extend(["No violations detected for this test.", ""])
+
+    if report.findings:
+        lines.extend(["## All Findings (by severity)", ""])
+        for finding in sorted(report.findings, key=_severity_rank):
+            lines.extend(
+                [
+                    f"### [{finding.severity.value}] {finding.test_name}",
+                    "",
+                    f"- **Location:** `{finding.location}`",
+                    f"- **Issue:** {finding.finding}",
+                    f"- **Remediation:** {finding.remediation}",
+                    "",
+                ]
+            )
+
+    lines.extend(
+        [
+            "---",
+            "",
+            "Regenerate this report:",
+            "",
+            "```bash",
+            "./run_security_scan.sh --write-preview",
+            "```",
+            "",
+            "Static documentation: `security_scan.preview.md`",
+        ]
+    )
+    return "\n".join(lines)
+
+
+def report_to_html(report: SecurityScanReport) -> str:
+    """Render the scan report as HTML for browser preview."""
+    rows = []
+    for result in report.check_results:
+        check = result.check
+        finding_items = "".join(
+            (
+                f"<li><strong>{finding.severity.value}</strong> "
+                f"<code>{finding.location}</code> — {finding.finding}"
+                f"<br><em>Fix:</em> {finding.remediation}</li>"
+            )
+            for finding in result.findings
+        )
+        if not finding_items:
+            finding_items = "<li>No violations detected.</li>"
+        rows.append(
+            "<section>"
+            f"<h3>{check.check_id} {check.name} — {result.status.value}</h3>"
+            f"<p>{check.description}</p>"
+            f"<ul><li>OWASP: {check.owasp}</li>"
+            f"<li>ISO 27001: {check.iso27001}</li>"
+            f"<li>NIST: {check.nist}</li></ul>"
+            f"<ul>{finding_items}</ul>"
+            "</section>"
+        )
+
+    return (
+        "<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"utf-8\">"
+        "<title>Security Scan Report</title>"
+        "<style>body{font-family:system-ui,sans-serif;max-width:960px;margin:2rem auto;"
+        "line-height:1.5}code{background:#f4f4f4;padding:0.1rem 0.3rem}"
+        "section{border:1px solid #ddd;border-radius:8px;padding:1rem;margin:1rem 0}</style>"
+        "</head><body>"
+        f"<h1>Security Scan Report</h1>"
+        f"<p><strong>Project:</strong> <code>{report.project_root}</code></p>"
+        f"<p><strong>Overall:</strong> {_overall_result_label(report)}</p>"
+        f"{''.join(rows)}"
+        "</body></html>"
+    )
+
+
+def write_preview_report(
+    report: SecurityScanReport,
+    output_path: Optional[Path] = None,
+) -> Path:
+    """Write Markdown preview report beside security_scan.py for Cursor Preview tab."""
+    path = (output_path or PREVIEW_REPORT_PATH).resolve()
+    path.write_text(report_to_markdown(report), encoding="utf-8")
+    return path
+
+
 # ---------------------------------------------------------------------------
 # SECTION 7: HELPERS
 # ---------------------------------------------------------------------------
@@ -962,17 +1121,44 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     )
     parser.add_argument(
         "--format",
-        choices=("text", "json"),
+        choices=("text", "json", "markdown", "html"),
         default="text",
         help="Output format",
+    )
+    parser.add_argument(
+        "--output",
+        type=Path,
+        help="Write markdown/html report to this file instead of stdout",
+    )
+    parser.add_argument(
+        "--write-preview",
+        action="store_true",
+        help="Write api_tests/security_scan.report.md for Cursor Markdown Preview",
     )
     args = parser.parse_args(list(argv) if argv is not None else None)
 
     report = scan_project_for_security_concerns(args.project_root)
+
+    if args.write_preview:
+        preview_path = write_preview_report(report)
+        print(f"Preview report written to: {preview_path}")
+        print("Open it in Cursor and use the Preview tab (Preview | Markdown).")
+
     if args.format == "json":
-        print(report_to_json(report))
+        output = report_to_json(report)
+    elif args.format == "markdown":
+        output = report_to_markdown(report)
+    elif args.format == "html":
+        output = report_to_html(report)
     else:
         print_security_scan_report(report)
+        return 0 if report.passed else 1
+
+    if args.output:
+        args.output.write_text(output, encoding="utf-8")
+        print(f"Report written to: {args.output.resolve()}")
+    else:
+        print(output)
 
     return 0 if report.passed else 1
 

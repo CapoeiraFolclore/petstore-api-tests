@@ -12,3 +12,6 @@ htmlcov/
 .venv/
 venv/
 *.log
+api_tests/security_scan.report.md
+api_tests/security_scan.report.html
+reports/

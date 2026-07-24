@@ -108,6 +108,8 @@ chmod +x run_security_scan.sh
 ./run_security_scan.sh
 ```
 
+**Cursor Preview tab:** Open `api_tests/security_scan.preview.md` or the generated `api_tests/security_scan.report.md` and select **Preview** in the tab bar (Markdown files get Preview alongside Code and Blame; Python files do not).
+
 JSON output for CI:
 
 ```bash
