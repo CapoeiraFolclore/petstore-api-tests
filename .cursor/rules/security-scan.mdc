@@ -7,15 +7,18 @@ alwaysApply: true
 
 When the user asks to **"Scan this project for security concerns"** (or similar security-scan requests for this repository):
 
-1. Run the built-in scanner:
+1. Run the built-in scanner (static checks **and** dependency audit):
 
 ```bash
 ./run_security_scan.sh
 ```
 
-2. Summarize the output as a markdown table with columns: **Severity**, **Location**, **Finding**.
-3. Sort findings by severity (High, Medium, Low).
-4. Do not modify code unless the user explicitly asks to fix findings.
+This runs SEC-001 through SEC-012 in `api_tests/security_scan.py`, then `pip-audit -r requirements.txt`.
+
+2. Summarize static findings as a markdown table with columns: **Severity**, **Location**, **Finding**.
+3. Summarize dependency audit results separately (package, advisory/CVE, fixed version if any).
+4. Sort static findings by severity (High, Medium, Low).
+5. Do not modify code unless the user explicitly asks to fix findings.
 
 The default entry point is `scan_project_for_security_concerns()` in `api_tests/security_scan.py`.
 

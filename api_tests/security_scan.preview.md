@@ -28,6 +28,8 @@ Static security scanner mapped to:
 
 Default prompt: **Scan this project for security concerns**
 
+Runs static checks (SEC-001 – SEC-012) and `pip-audit -r requirements.txt`.
+
 ---
 
 ## How to use

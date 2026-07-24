@@ -16,6 +16,6 @@ When **writing or modifying** code in this repository:
 6. Add `# SECURITY-REVIEW: <reason>` for auth, HTTP, subprocess, file I/O, and deserialization code.
 7. After substantive changes, run `./run_security_scan.sh` and report findings.
 
-When the user asks **"Scan this project for security concerns"**, run `./run_security_scan.sh` and summarize results with remediation guidance (see `.cursor/rules/security-scan.mdc`).
+When the user asks **"Scan this project for security concerns"**, run `./run_security_scan.sh` (static scan + `pip-audit`) and summarize results with remediation guidance (see `.cursor/rules/security-scan.mdc`).
 
 Prompt templates: `docs/SECURITY_REVIEW_PROMPT.md`

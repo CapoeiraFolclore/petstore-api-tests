@@ -14,7 +14,7 @@ Apply this skill when **generating**, **modifying**, or **reviewing** code in th
 
 | User intent | Action |
 |-------------|--------|
-| "Scan this project for security concerns" | Run `./run_security_scan.sh`, summarize findings |
+| "Scan this project for security concerns" | Run `./run_security_scan.sh` (static scan + `pip-audit`), summarize findings |
 | "Review security" / "/review-security" | Run scanner + manual review against checklist below |
 | Writing new Python/shell/config code | Follow generation checklist before finishing |
 
@@ -44,11 +44,13 @@ Apply the **Generation Checklist** (minimum bar):
 
 ### 3. After writing code
 
-Run the project scanner:
+Run the project scanner (static checks + dependency audit):
 
 ```bash
 ./run_security_scan.sh
 ```
+
+This also runs `pip-audit -r requirements.txt` after the static scan.
 
 Optional JSON for CI:
 
@@ -58,7 +60,7 @@ Optional JSON for CI:
 
 ### 4. When reporting findings
 
-Summarize as a markdown table:
+Summarize **static scan** results as a markdown table:
 
 | Severity | Location | Finding | Remediation |
 |----------|----------|---------|-------------|
@@ -66,6 +68,13 @@ Summarize as a markdown table:
 Sort by severity: **High → Medium → Low**.
 
 Include the **test/check name** when available (e.g. `SEC-003 Sensitive Data in Logs`).
+
+Summarize **dependency audit** results separately:
+
+| Package | Advisory | Fix Version |
+|---------|----------|-------------|
+
+If `pip-audit` reports no vulnerabilities, state that explicitly.
 
 Do **not** auto-fix findings unless the user asks.
 

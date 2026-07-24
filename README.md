@@ -103,7 +103,7 @@ Configuration files live in `config/<env>.yaml` and support:
 
 ## Security scan (default)
 
-Run the built-in **"Scan this project for security concerns"** check. The scanner maps findings to **OWASP Top 10**, **ISO/IEC 27001 Annex A**, and **NIST CSF**, and reports each test with remediation guidance.
+Run the built-in **"Scan this project for security concerns"** check. This runs static analysis (SEC-001 – SEC-012) mapped to **OWASP Top 10**, **ISO/IEC 27001 Annex A**, and **NIST CSF**, then **`pip-audit -r requirements.txt`** for known dependency CVEs.
 
 ```bash
 chmod +x run_security_scan.sh
@@ -137,18 +137,13 @@ The scanner checks for hardcoded secrets, dangerous code patterns, sensitive log
 
 ## Dependency audit (pip-audit)
 
-Scan third-party packages for known CVEs:
+The default `./run_security_scan.sh` already runs `pip-audit -r requirements.txt` after the static scan.
+
+To run the dependency audit only:
 
 ```bash
 chmod +x run_pip_audit.sh
 ./run_pip_audit.sh
-```
-
-Or manually:
-
-```bash
-pip install pip-audit
-pip-audit -r requirements.txt
 ```
 
 Recent advisories required bumping minimum versions in `requirements.txt` (pytest, requests, python-dotenv, urllib3). Those patched releases require **Python 3.10+**.
